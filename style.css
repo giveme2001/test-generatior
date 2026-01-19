@@ -1,0 +1,270 @@
+/* ============================================================================
+   테스트 시나리오 생성기 v2 - Simple Light Mode
+   Material Icons 관련 CSS 완전 제거 버전
+   ============================================================================ */
+
+/* Google Fonts - Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --accent-purple: #6f42c1;
+    --border-light: #dee2e6;
+    --radius-md: 10px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 메인 앱 */
+.stApp {
+    background: #f8f9fa;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+/* 타이포그래피 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+}
+
+/* ============================================================================
+   입력 필드
+   ============================================================================ */
+
+.stTextInput input,
+.stTextArea textarea {
+    background: white !important;
+    border: 2px solid var(--border-light) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-primary) !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.stTextInput input:focus,
+.stTextArea textarea:focus {
+    border-color: var(--accent-purple) !important;
+    box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1) !important;
+}
+
+.stSelectbox>div>div {
+    background: white !important;
+    border: 2px solid var(--border-light) !important;
+    border-radius: var(--radius-md) !important;
+}
+
+/* ============================================================================
+   버튼
+   ============================================================================ */
+
+.stButton>button[kind="primary"],
+.stButton>button[data-testid="baseButton-primary"] {
+    background: var(--gradient-primary) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 0.75rem 2rem !important;
+    font-weight: 600 !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.stButton>button[kind="primary"]:hover,
+.stButton>button[data-testid="baseButton-primary"]:hover {
+    transform: translateY(-2px) !important;
+}
+
+.stButton>button {
+    background: white !important;
+    border: 2px solid var(--border-light) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.6rem 1.5rem !important;
+}
+
+.stDownloadButton>button {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 0.75rem 2rem !important;
+    font-weight: 600 !important;
+}
+
+/* ============================================================================
+   Expander - 아무것도 숨기지 않음
+   ============================================================================ */
+
+.stExpander {
+    background: white !important;
+    border: 1px solid var(--border-light) !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 1rem !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stExpander:hover {
+    box-shadow: var(--shadow-md) !important;
+}
+
+.stExpander summary {
+    padding: 1rem 1.25rem !important;
+}
+
+.stExpander [data-testid="stExpanderDetails"] {
+    padding: 1.5rem !important;
+    border-top: 1px solid var(--border-light) !important;
+}
+
+/* ============================================================================
+   탭
+   ============================================================================ */
+
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 2px solid var(--border-light) !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: var(--text-secondary) !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    color: var(--accent-purple) !important;
+    border-bottom: 3px solid var(--accent-purple) !important;
+}
+
+/* ============================================================================
+   테이블
+   ============================================================================ */
+
+.stDataFrame {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stDataFrame thead tr {
+    background: var(--gradient-primary) !important;
+}
+
+.stDataFrame thead th {
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 1rem !important;
+}
+
+.stDataFrame tbody tr:hover {
+    background: var(--bg-secondary) !important;
+}
+
+/* ============================================================================
+   메시지
+   ============================================================================ */
+
+.stSuccess {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border-left: 4px solid #10b981 !important;
+    border-radius: var(--radius-md) !important;
+    color: #065f46 !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.stInfo {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-left: 4px solid #3b82f6 !important;
+    border-radius: var(--radius-md) !important;
+    color: #1e40af !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.stWarning {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-left: 4px solid #f59e0b !important;
+    border-radius: var(--radius-md) !important;
+    color: #92400e !important;
+    padding: 1rem 1.5rem !important;
+}
+
+.stError,
+.stException {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-left: 4px solid #ef4444 !important;
+    border-radius: var(--radius-md) !important;
+    color: #991b1b !important;
+    padding: 1rem 1.5rem !important;
+}
+
+/* ============================================================================
+   Metric 카드
+   ============================================================================ */
+
+[data-testid="stMetricValue"] {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: var(--accent-purple) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+}
+
+.stMetric {
+    background: white !important;
+    padding: 1.5rem !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stMetric:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* ============================================================================
+   파일 업로더
+   ============================================================================ */
+
+.stFileUploader {
+    background: white !important;
+    border: 2px dashed var(--border-light) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 2rem !important;
+}
+
+.stFileUploader:hover {
+    border-color: var(--accent-purple) !important;
+    background: var(--bg-secondary) !important;
+}
+
+/* ============================================================================
+   사이드바
+   ============================================================================ */
+
+[data-testid="stSidebar"] {
+    background: white !important;
+    border-right: 1px solid var(--border-light) !important;
+}
+
+/* ============================================================================
+   이미지
+   ============================================================================ */
+
+.stImage {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: var(--shadow-md) !important;
+}

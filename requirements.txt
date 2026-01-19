@@ -1,0 +1,23 @@
+# ============================================================================
+# Test Scenario Generator 2 - 필수 라이브러리 목록
+# ============================================================================
+# 설치 방법: pip install -r requirements.txt
+# ============================================================================
+
+# Streamlit: 웹 애플리케이션 프레임워크
+streamlit>=1.30.0
+
+# Google Generative AI: Gemini API 연동
+google-generativeai>=0.3.0
+
+# Pandas: 데이터 처리 및 DataFrame 조작
+pandas>=2.0.0
+
+# openpyxl: Excel 파일 생성 및 포맷팅
+openpyxl>=3.1.0
+
+# Pydantic: 데이터 검증 및 구조화
+pydantic>=2.0.0
+
+# Pillow: 이미지 파일 처리
+pillow>=10.0.0

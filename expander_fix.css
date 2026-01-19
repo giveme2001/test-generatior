@@ -1,0 +1,41 @@
+/* Expander 아이콘 텍스트 숨기기 */
+.stExpander summary::before {
+    content: "" !important;
+}
+
+.stExpander summary::after {
+    content: "" !important;
+}
+
+/* Expander 내 모든 텍스트 노드에서 화살표 관련 텍스트 제거 */
+.stExpander summary {
+    font-size: 0 !important;
+}
+
+.stExpander summary>* {
+    font-size: 1rem !important;
+}
+
+/* Streamlit의 기본 화살표 아이콘을 숨김 처리 */
+.stExpander details summary svg {
+    display: none !important;
+}
+
+/* 커스텀 화살표 표시 (CSS로) */
+.stExpander summary {
+    position: relative;
+    padding-left: 2rem !important;
+}
+
+.stExpander summary::before {
+    content: "▶" !important;
+    position: absolute !important;
+    left: 0.5rem !important;
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    transition: transform 0.3s ease !important;
+}
+
+.stExpander[open] summary::before {
+    transform: rotate(90deg) !important;
+}
