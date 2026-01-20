@@ -1,0 +1,19 @@
+{
+  "일반청약_성인": {
+    "contractor_age": [
+      "성인"
+    ],
+    "contractor_nat": [
+      "내국인"
+    ],
+    "app_type": [
+      "서면청약"
+    ],
+    "product_main": [
+      "종신보험"
+    ],
+    "product_riders": [
+      "건강특약"
+    ]
+  }
+}

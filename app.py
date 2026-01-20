@@ -52,6 +52,7 @@ SYSTEM_PROMPT = """당신은 대규모 엔터프라이즈 시스템(보험, 금�
 2. 세부 항목 분석: 화면ID, 화면명, 화면 경로를 모두 식별한다. 화면 내 모든 필드, 버튼, 데이터 요소를 파악하며, Screen Definition의 세부 정의사항을 빠짐없이 확인한다. 시나리오 및 테스트 케이스는 모든 정의사항을 누락 없이 반영한다.
 3. 예외 케이스 도출: 입력값 검증, 통신 오류, 데이터 없음 등 화면내에서 발생할 수 있는 충분한 Negative Case를 식별한다.
 4. 정책 매핑: 화면에서 유추되거나 필수적인 비즈니스 규칙(한도, 날짜 제한 등)을 명시한다.
+5. **[중요] 논리 오류 및 허점 탐지**: Screen Definition 상 논리적 오류, 모순, 보안 허점, 비즈니스 규칙 충돌을 식별하고 해당 테스트 케이스를 **반드시 생성**한다.
 
 
 ### 2. 테스트 구분 (Mode Selection)
@@ -80,7 +81,22 @@ SYSTEM_PROMPT = """당신은 대규모 엔터프라이즈 시스템(보험, 금�
       "테스트항목_절차": "올바른 아이디/비밀번호 입력 후 로그인 버튼 클릭",
       "입력데이터": "아이디: test@example.com, 비밀번호: Test1234!",
       "기대결과": "메인 대시보드로 이동하며 사용자 이름이 우측 상단에 표시된다",
-      "비교검증로직": "[원칙] 정상 인증 시 세션 생성 및 메인 화면 리디렉션 / [예외] 잘못된 입력 시 에러 메시지 표시 / [이유] 보안 및 사용자 경험"
+      "비교검증로직": "[원칙] 정상 인증 시 세션 생성 및 메인 화면 리디렉션 / [예외] 잘못된 입력 시 에러 메시지 표시 / [이유] 보안 및 사용자 경험",
+      "주의태그": ""
+    },
+    {
+      "시나리오ID": "TS-002",
+      "시나리오명": "[주의] 논리 오류 검증 시나리오",
+      "화면경로": "메인 > 계약 정보",
+      "화면명": "계약 정보 입력",
+      "화면ID": "SCR_CONTRACT",
+      "TC_ID": "TC-010",
+      "구분": "통합",
+      "테스트항목_절차": "미성년자 계약자에게 사망보험금 지급 수익자 지정",
+      "입력데이터": "계약자 연령: 17세, 사망수익자: 본인",
+      "기대결과": "법적 미성년자에 대한 사망보험금 수익자 지정 불가 경고 또는 법정대리인 지정 강제",
+      "비교검증로직": "[원칙] 미성년자 사망보험 관련 법적 제한 적용 / [예외] 법정대리인 동의 시 예외 / [이유] 보험업법 준수",
+      "주의태그": "[주의] 논리 오류 - Screen Definition에 미성년자 예외 처리 누락"
     }
   ]
 }
@@ -88,7 +104,19 @@ SYSTEM_PROMPT = """당신은 대규모 엔터프라이즈 시스템(보험, 금�
 
 테스트 시나리오가 상위 개념이고, 테스트 케이스가 하위 개념이며, 테스트 시나리오 하나에 여러 테스트 케이스가 수행 될 수 있어야 한다. 하나의 화면에 복수개의 테스트 시나리오, 복수개의 테스트 케이스가 존재한다. 단위 테스트 및 통합 테스트는 모든 정의 사항 및 모든 시나리오 / 케이스에 대해 수행되어야 한다.
 
-### 4. 제약 및 규칙 (Constraints)
+### 4. [주의] 태그 사용 규칙
+
+다음과 같은 경우 **반드시 해당 테스트 케이스를 생성**하고 주의태그 필드에 경고 유형을 명시하십시오:
+
+1. **[주의] 논리 오류**: Screen Definition 상 비즈니스 로직이 상충하거나 모순되는 경우
+2. **[주의] 허점 발견**: 보안, 검증, 예외 처리가 누락된 경우
+3. **[주의] 규칙 충돌**: 법적/규정적 요구사항과 화면 정의가 맞지 않는 경우
+4. **[주의] 데이터 무결성**: 데이터 검증이 불충분하여 오류 데이터가 저장될 수 있는 경우
+5. **[주의] 사용자 경험**: UX 흐름상 사용자 혼란이나 오류 유발 가능성이 있는 경우
+
+주의태그가 없는 일반 테스트 케이스는 주의태그 필드를 빈 문자열("")로 남깁니다.
+
+### 5. 제약 및 규칙 (Constraints)
 
 * 명제형 서술: '~한다', '~확인' 등으로 명확히 종결한다.
 * 전문 용어: 청약, 심사, 배서 등 도메인 용어를 정확히 사용한다.
@@ -96,13 +124,14 @@ SYSTEM_PROMPT = """당신은 대규모 엔터프라이즈 시스템(보험, 금�
 * Screen Definition에 없더라도 청약 설계 시스템 구조 상 테스트 필요한 조건이 있는 경우 반영하여 작성한다.
 * 논리적 근거: [원칙 + 예외 + 이유] 구조를 유지한다.
 
-### 5. 응대 태도 (Tone & Manner)
+### 6. 응대 태도 (Tone & Manner)
 
 * 서론과 결론 없이 핵심 내용만 간결하게 전달한다.
 * 전문적이고 분석적인 태도를 유지한다.
 * JSON 형식을 엄격히 준수한다.
 
 최소 15개 이상의 테스트 케이스를 생성하며, Positive Case와 Negative Case를 균형있게 포함한다.
+논리 오류나 허점이 발견되면 해당 테스트 케이스에 반드시 [주의] 태그를 포함한다.
 """
 
 # ---------- 유틸리티 함수들 ----------
@@ -530,16 +559,40 @@ def main():
         
         st.markdown("---")
         
-        # 히스토리 퀵 스탯
+        # 📊 향상된 통계 대시보드
         history_df = load_history()
         if len(history_df) > 0:
-            st.markdown("### 📊 통계")
+            st.markdown("### 📊 통계 대시보드")
+            
+            # 기본 통계
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("총 생성", f"{len(history_df)}")
+                st.metric("📋 총 생성", f"{len(history_df)}")
             with col2:
                 total_scenarios = history_df['ScenarioCount'].sum() if 'ScenarioCount' in history_df.columns else 0
-                st.metric("시나리오", f"{total_scenarios}")
+                st.metric("🧪 시나리오", f"{int(total_scenarios)}")
+            
+            # 버전별 통계 (Version 컬럼이 있는 경우)
+            if 'Version' in history_df.columns:
+                st.caption("📌 버전별 분포")
+                version_counts = history_df['Version'].value_counts()
+                
+                ver_col1, ver_col2, ver_col3 = st.columns(3)
+                with ver_col1:
+                    v1_count = version_counts.get('v1', 0)
+                    st.metric("1차", f"{v1_count}", delta=None, label_visibility="visible")
+                with ver_col2:
+                    v2_count = version_counts.get('v2', 0)
+                    st.metric("2차", f"{v2_count}", delta=None, label_visibility="visible")
+                with ver_col3:
+                    final_count = version_counts.get('Final', 0)
+                    st.metric("Final", f"{final_count}", delta=None, label_visibility="visible")
+            
+            # 최근 활동
+            st.caption("🕐 최근 생성")
+            if 'Timestamp' in history_df.columns:
+                latest = history_df.iloc[0]['Timestamp'] if len(history_df) > 0 else "없음"
+                st.text(f"마지막: {latest}")
         
         # 버전 정보
         st.markdown("---")
@@ -551,8 +604,8 @@ def main():
             </div>
         """, unsafe_allow_html=True)
     
-    # ---------- 탭 구성: 시나리오 생성 / 히스토리 ----------
-    tab1, tab2, tab3 = st.tabs(["🚀 시나리오 생성", "📚 히스토리", "🔍 2차 QA 검수"])
+    # ---------- 탭 구성: 시나리오 생성 / 히스토리 / 2차 QA 검수 / 배치 자동화 ----------
+    tab1, tab2, tab3, tab4 = st.tabs(["🚀 시나리오 생성", "📚 히스토리", "🔍 2차 QA 검수", "⚡ 배치 자동화"])
     
     # ========== 탭 1: 시나리오 생성 ==========
     with tab1:
@@ -1424,6 +1477,512 @@ def main():
                             use_container_width=True,
                             type="primary"
                         )
+    
+    # ========== 탭 4: 배치 자동화 ==========
+    with tab4:
+        # 헤더
+        st.markdown("""
+            <div style='text-align: center; margin-bottom: 2rem;'>
+                <h2 style='font-size: 2rem; margin-bottom: 0.5rem;'>
+                    ⚡ 배치 자동화 - 폴더 기반 처리
+                </h2>
+                <p style='color: #b0b3b8; font-size: 1rem;'>
+                    폴더 내 이미지를 순차적으로 처리하여 1차 → 2차 → 최종본까지 자동 생성합니다
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # 설정 영역
+        st.markdown("### ⚙️ 배치 처리 설정")
+        
+        col_left, col_right = st.columns([1, 1])
+        
+        with col_left:
+            # 입력 폴더 경로
+            st.markdown("**📁 입력 폴더**")
+            
+            # 빠른 선택 버튼
+            st.caption("📌 빠른 선택:")
+            quick_col1, quick_col2, quick_col3, quick_col4 = st.columns(4)
+            
+            # 기본 경로들
+            home_path = os.path.expanduser("~")
+            desktop_path = os.path.join(home_path, "Desktop")
+            documents_path = os.path.join(home_path, "Documents")
+            downloads_path = os.path.join(home_path, "Downloads")
+            current_path = os.path.dirname(os.path.abspath(__file__))
+            
+            with quick_col1:
+                if st.button("🖥️ 바탕화면", use_container_width=True, key="q_desktop"):
+                    st.session_state['batch_input_folder'] = desktop_path
+            with quick_col2:
+                if st.button("📄 문서", use_container_width=True, key="q_docs"):
+                    st.session_state['batch_input_folder'] = documents_path
+            with quick_col3:
+                if st.button("⬇️ 다운로드", use_container_width=True, key="q_download"):
+                    st.session_state['batch_input_folder'] = downloads_path
+            with quick_col4:
+                if st.button("📍 현재폴더", use_container_width=True, key="q_current"):
+                    st.session_state['batch_input_folder'] = current_path
+            
+            # 텍스트 입력 (세션 상태 연동)
+            default_input = st.session_state.get('batch_input_folder', '')
+            input_folder = st.text_input(
+                "폴더 경로 입력 또는 위에서 선택",
+                value=default_input,
+                placeholder="예: C:/Users/images",
+                help="처리할 이미지 파일들이 있는 폴더 경로",
+                key="input_folder_text"
+            )
+            
+            # 입력값을 세션에 저장
+            if input_folder:
+                st.session_state['batch_input_folder'] = input_folder
+            
+            # 하위 폴더 표시
+            if input_folder and os.path.exists(input_folder):
+                subfolders = [f for f in os.listdir(input_folder) 
+                             if os.path.isdir(os.path.join(input_folder, f)) and not f.startswith('.')]
+                if subfolders:
+                    selected_sub = st.selectbox(
+                        "📂 하위 폴더로 이동",
+                        ["(현재 폴더 사용)"] + sorted(subfolders),
+                        key="subfolder_select"
+                    )
+                    if selected_sub != "(현재 폴더 사용)":
+                        input_folder = os.path.join(input_folder, selected_sub)
+                        st.session_state['batch_input_folder'] = input_folder
+            
+            # 지원 확장자 안내
+            st.caption("🖼️ 지원 형식: PNG, JPG, JPEG, GIF, BMP, WEBP")
+            
+            # 폴더 내 파일 미리보기 및 선택
+            if input_folder and os.path.exists(input_folder):
+                image_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')
+                all_image_files = [f for f in os.listdir(input_folder) 
+                              if f.lower().endswith(image_extensions)]
+                
+                if all_image_files:
+                    st.success(f"✅ **{len(all_image_files)}개** 이미지 파일 발견")
+                    
+                    # 선택 버튼
+                    sel_col1, sel_col2 = st.columns(2)
+                    with sel_col1:
+                        if st.button("✅ 전체 선택", use_container_width=True, key="sel_all"):
+                            st.session_state['selected_images'] = all_image_files
+                    with sel_col2:
+                        if st.button("❎ 전체 해제", use_container_width=True, key="desel_all"):
+                            st.session_state['selected_images'] = []
+                    
+                    # 기본값: 전체 선택
+                    if 'selected_images' not in st.session_state:
+                        st.session_state['selected_images'] = all_image_files
+                    
+                    # 멀티셀렉트로 파일 선택
+                    selected_images = st.multiselect(
+                        "📋 처리할 이미지 선택 (원하지 않는 이미지는 X 클릭하여 제외)",
+                        all_image_files,
+                        default=st.session_state.get('selected_images', all_image_files),
+                        key="batch_image_select"
+                    )
+                    
+                    # 세션에 저장
+                    st.session_state['selected_images'] = selected_images
+                    
+                    # 선택된 파일 수 표시
+                    if len(selected_images) < len(all_image_files):
+                        st.info(f"📌 {len(all_image_files)}개 중 **{len(selected_images)}개** 선택됨 ({len(all_image_files) - len(selected_images)}개 제외)")
+                    
+                    # 🖼️ 이미지 미리보기 (썸네일)
+                    if selected_images:
+                        with st.expander("🖼️ 이미지 미리보기", expanded=False):
+                            # 한 줄에 4개씩 표시
+                            cols_per_row = 4
+                            for i in range(0, min(len(selected_images), 12), cols_per_row):  # 최대 12개
+                                cols = st.columns(cols_per_row)
+                                for j, col in enumerate(cols):
+                                    if i + j < len(selected_images):
+                                        img_file = selected_images[i + j]
+                                        img_path = os.path.join(input_folder, img_file)
+                                        with col:
+                                            try:
+                                                from PIL import Image
+                                                img = Image.open(img_path)
+                                                st.image(img, caption=img_file[:20], use_container_width=True)
+                                            except:
+                                                st.caption(f"📄 {img_file[:15]}...")
+                            if len(selected_images) > 12:
+                                st.caption(f"... 외 {len(selected_images) - 12}개")
+                else:
+                    st.warning("⚠️ 폴더에 이미지 파일이 없습니다")
+            elif input_folder:
+                st.error("❌ 폴더를 찾을 수 없습니다")
+        
+        with col_right:
+            # 출력 폴더 경로
+            st.markdown("**📂 출력 폴더**")
+            
+            # 빠른 선택 버튼
+            st.caption("📌 빠른 선택:")
+            out_col1, out_col2, out_col3, out_col4 = st.columns(4)
+            
+            with out_col1:
+                if st.button("🖥️ 바탕화면", use_container_width=True, key="o_desktop"):
+                    st.session_state['batch_output_folder'] = desktop_path
+            with out_col2:
+                if st.button("📄 문서", use_container_width=True, key="o_docs"):
+                    st.session_state['batch_output_folder'] = documents_path
+            with out_col3:
+                if st.button("⬇️ 다운로드", use_container_width=True, key="o_download"):
+                    st.session_state['batch_output_folder'] = downloads_path
+            with out_col4:
+                if st.button("📍 현재폴더", use_container_width=True, key="o_current"):
+                    st.session_state['batch_output_folder'] = current_path
+            
+            # 텍스트 입력
+            default_output = st.session_state.get('batch_output_folder', '')
+            output_folder = st.text_input(
+                "폴더 경로 입력 또는 위에서 선택",
+                value=default_output,
+                placeholder="예: C:/Users/output",
+                help="최종 Excel 파일이 저장될 폴더",
+                key="output_folder_text"
+            )
+            
+            if output_folder:
+                st.session_state['batch_output_folder'] = output_folder
+            
+            # 출력 옵션
+            st.markdown("**📊 출력 옵션**")
+            save_individual = st.checkbox("각 이미지별 개별 파일 저장", value=False)
+            save_consolidated = st.checkbox("통합 파일 저장", value=True)
+        
+        st.markdown("---")
+        
+        # 2차 검수 조건 (선택사항)
+        st.markdown("### 🔍 2차 검수 조건 (선택사항)")
+        st.caption("조건을 선택하지 않으면 기본 2차 검수만 수행됩니다")
+        
+        with st.expander("📋 비즈니스 조건 사전 설정", expanded=False):
+            batch_col1, batch_col2 = st.columns(2)
+            
+            with batch_col1:
+                batch_contractor_age = st.multiselect("계약자 연령", ["성인", "미성년자"], key="batch_c_age")
+                batch_contractor_nat = st.multiselect("계약자 국적", ["내국인", "외국인"], key="batch_c_nat")
+                batch_app_type = st.multiselect("청약방식", ["서면청약", "전자청약", "모바일청약"], key="batch_app")
+            
+            with batch_col2:
+                batch_product_main = st.multiselect("주계약", ["종신보험", "정기보험", "연금보험"], key="batch_prod")
+                batch_product_riders = st.multiselect("특약", ["건강특약", "상해특약", "재해특약", "특약없음"], key="batch_rider")
+            
+            st.markdown("---")
+            
+            # 프리셋 저장/불러오기
+            st.markdown("**💾 조건 프리셋**")
+            
+            # 프리셋 파일 경로
+            preset_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "condition_presets.json")
+            
+            # 저장된 프리셋 로드
+            presets = {}
+            if os.path.exists(preset_file):
+                try:
+                    with open(preset_file, 'r', encoding='utf-8') as f:
+                        presets = json.load(f)
+                except:
+                    pass
+            
+            # 1행: 불러오기
+            if presets:
+                selected_preset = st.selectbox(
+                    "📂 저장된 프리셋 불러오기",
+                    ["(선택하세요)"] + list(presets.keys()),
+                    key="load_preset"
+                )
+                if selected_preset != "(선택하세요)" and selected_preset in presets:
+                    preset = presets[selected_preset]
+                    st.session_state['batch_c_age'] = preset.get('contractor_age', [])
+                    st.session_state['batch_c_nat'] = preset.get('contractor_nat', [])
+                    st.session_state['batch_app'] = preset.get('app_type', [])
+                    st.session_state['batch_prod'] = preset.get('product_main', [])
+                    st.session_state['batch_rider'] = preset.get('product_riders', [])
+                    st.rerun()
+            else:
+                st.caption("💡 아래에서 현재 조건을 저장하세요")
+            
+            # 2행: 저장
+            save_col1, save_col2 = st.columns([3, 1])
+            with save_col1:
+                preset_name = st.text_input("프리셋 이름", placeholder="예: 미성년자_전자청약", key="preset_name", label_visibility="collapsed")
+            with save_col2:
+                if st.button("💾 저장", use_container_width=True, key="save_preset"):
+                    if preset_name:
+                        # 현재 조건 저장
+                        current_preset = {
+                            "contractor_age": batch_contractor_age,
+                            "contractor_nat": batch_contractor_nat,
+                            "app_type": batch_app_type,
+                            "product_main": batch_product_main,
+                            "product_riders": batch_product_riders
+                        }
+                        
+                        # 새 프리셋 추가
+                        presets[preset_name] = current_preset
+                        
+                        # 저장
+                        with open(preset_file, 'w', encoding='utf-8') as f:
+                            json.dump(presets, f, ensure_ascii=False, indent=2)
+                        
+                        st.success(f"✅ '{preset_name}' 저장됨!")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ 프리셋 이름을 입력하세요")
+        
+        st.markdown("---")
+        
+        # 실행/중단 버튼
+        col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+        with col_btn1:
+            start_batch = st.button(
+                "🚀 배치 시작",
+                use_container_width=True,
+                type="primary",
+                disabled=not (input_folder and output_folder and os.path.exists(input_folder))
+            )
+        with col_btn2:
+            stop_batch = st.button(
+                "⏹️ 중단",
+                use_container_width=True,
+                type="secondary"
+            )
+            if stop_batch:
+                st.session_state['batch_stop'] = True
+                st.warning("⚠️ 중단 요청됨. 현재 처리 중인 파일까지 완료 후 중단됩니다.")
+        with col_btn3:
+            # 실패한 파일 재시도 버튼
+            failed_files = st.session_state.get('failed_files', [])
+            retry_failed = st.button(
+                f"🔄 실패 재시도 ({len(failed_files)}개)",
+                use_container_width=True,
+                type="secondary",
+                disabled=len(failed_files) == 0
+            )
+        
+        # 배치 처리 실행
+        if start_batch or retry_failed:
+            # 중단 플래그 초기화
+            st.session_state['batch_stop'] = False
+            
+            # API 키 검증
+            if not api_key:
+                st.error("❌ 사이드바에서 API 키를 먼저 입력해주세요!")
+                st.stop()
+            
+            # 출력 폴더 생성
+            os.makedirs(output_folder, exist_ok=True)
+            
+            # 처리할 이미지 결정 (재시도 vs 새로운 처리)
+            if retry_failed and failed_files:
+                image_files = failed_files.copy()
+                st.info(f"🔄 {len(image_files)}개 실패 파일 재시도 중...")
+            else:
+                image_files = st.session_state.get('selected_images', [])
+                st.session_state['failed_files'] = []  # 실패 목록 초기화
+            
+            if not image_files:
+                st.error("❌ 처리할 이미지가 선택되지 않았습니다. 이미지를 선택해주세요.")
+                st.stop()
+            
+            # API 설정
+            genai.configure(api_key=api_key)
+            
+            # 전체 결과 저장
+            all_final_results = []
+            failed_files_new = []
+            
+            # 진행률 표시
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            result_container = st.container()
+            
+            total_files = len(image_files)
+            
+            total_files = len(image_files)
+            
+            for idx, image_file in enumerate(image_files):
+                # 중단 체크
+                if st.session_state.get('batch_stop', False):
+                    status_text.markdown("**⏹️ 사용자 요청으로 중단됨**")
+                    st.warning(f"⚠️ 중단 완료. {idx}개 처리 완료, {total_files - idx}개 미처리")
+                    break
+                
+                # 재시도 로직 (최대 3회)
+                max_retries = 3
+                success = False
+                last_error = None
+                
+                for attempt in range(max_retries):
+                    try:
+                        # 진행률 업데이트
+                        progress = (idx + 1) / total_files
+                        progress_bar.progress(progress)
+                        retry_text = f" (재시도 {attempt + 1}/{max_retries})" if attempt > 0 else ""
+                        status_text.markdown(f"**🔄 처리 중:** {image_file} ({idx + 1}/{total_files}){retry_text}")
+                        
+                        # 이미지 로드
+                        image_path = os.path.join(input_folder, image_file)
+                        with open(image_path, 'rb') as f:
+                            image_data = f.read()
+                        
+                        # ===================
+                        # 1️⃣ 1차 생성
+                        # ===================
+                        model = genai.GenerativeModel(
+                            model_name=model_name,
+                            generation_config={"temperature": 0.7},
+                            system_instruction=SYSTEM_PROMPT
+                        )
+                        
+                        response = model.generate_content([
+                            "이 화면 설계서를 분석하여 테스트 시나리오를 생성해주세요.",
+                            {"mime_type": f"image/{image_file.split('.')[-1].lower()}", "data": image_data}
+                        ])
+                        
+                        first_gen = parse_json_response(response.text)
+                        first_df = pd.DataFrame(first_gen)
+                        
+                        # ===================
+                        # 2️⃣ 2차 검수
+                        # ===================
+                        # 조건 텍스트 생성
+                        condition_text = ""
+                        if batch_contractor_age:
+                            condition_text += f"\n계약자 연령: {', '.join(batch_contractor_age)}"
+                        if batch_contractor_nat:
+                            condition_text += f"\n계약자 국적: {', '.join(batch_contractor_nat)}"
+                        if batch_app_type:
+                            condition_text += f"\n청약방식: {', '.join(batch_app_type)}"
+                        if batch_product_main:
+                            condition_text += f"\n주계약: {', '.join(batch_product_main)}"
+                        if batch_product_riders:
+                            condition_text += f"\n특약: {', '.join(batch_product_riders)}"
+                        
+                        if condition_text:
+                            expansion_prompt = f"""
+당신은 2차 QA 검수자입니다. 기존 테스트 케이스에 비즈니스 조건을 적용하여 확장합니다.
+
+**선택된 비즈니스 조건:**
+{condition_text}
+
+**기존 테스트 케이스:**
+{first_df.to_dict('records')[:5]}
+
+**중요 규칙:**
+1. 화면/Description에 해당 조건이 적용될 수 없는 경우, 해당 조건으로 테스트 케이스를 확장하지 마세요.
+2. 조건이 적용 가능한 경우에만 테스트 케이스를 생성하세요.
+3. 기존 테스트 케이스와 동일한 JSON 구조를 유지하세요.
+"""
+                        else:
+                            expansion_prompt = f"""
+당신은 2차 QA 검수자입니다. 기존 테스트 케이스를 다른 시각으로 검토하여 누락된 케이스를 보완합니다.
+
+**기존 테스트 케이스:**
+{first_df.to_dict('records')[:5]}
+
+**검토 관점:** 경계값 분석, 예외 케이스, 보안 관점
+**규칙:** 중복 없이 새로운 관점의 케이스만 생성하세요.
+"""
+                        
+                        model2 = genai.GenerativeModel(
+                            model_name=model_name,
+                            generation_config={"temperature": 0.7},
+                            system_instruction=SYSTEM_PROMPT + "\n\n" + expansion_prompt
+                        )
+                        
+                        response2 = model2.generate_content("위 지침에 따라 테스트 케이스를 생성하세요.")
+                        second_gen = parse_json_response(response2.text)
+                        second_df = pd.DataFrame(second_gen)
+                        
+                        # ===================
+                        # 3️⃣ 병합 (Final)
+                        # ===================
+                        merged_df = pd.concat([first_df, second_df], ignore_index=True)
+                        
+                        # 시나리오ID, TC_ID 기준 정렬
+                        if '시나리오ID' in merged_df.columns:
+                            merged_df = merged_df.sort_values(by=['시나리오ID'])
+                        if 'TC_ID' in merged_df.columns:
+                            merged_df = merged_df.sort_values(by=['시나리오ID', 'TC_ID'] if '시나리오ID' in merged_df.columns else ['TC_ID'])
+                        
+                        merged_df = merged_df.reset_index(drop=True)
+                        
+                        # 개별 파일 저장
+                        if save_individual:
+                            output_file = os.path.join(output_folder, f"{os.path.splitext(image_file)[0]}_최종.xlsx")
+                            excel_data = create_excel_file(merged_df)
+                            with open(output_file, 'wb') as f:
+                                f.write(excel_data.getvalue())
+                        
+                        # 전체 결과에 추가
+                        all_final_results.extend(merged_df.to_dict('records'))
+                        
+                        # 히스토리 저장
+                        save_to_history(
+                            model_name=model_name,
+                            image_name=f"[배치] {image_file}",
+                            scenarios=merged_df.to_dict('records'),
+                            version="Final",
+                            parent_id=""
+                        )
+                        
+                        with result_container:
+                            st.success(f"✅ {image_file}: 1차 {len(first_df)}개 + 2차 {len(second_df)}개 = 최종 {len(merged_df)}개")
+                        
+                        success = True
+                        break  # 성공 시 재시도 루프 종료
+                        
+                    except Exception as e:
+                        last_error = str(e)
+                        if attempt < max_retries - 1:
+                            import time
+                            time.sleep(2)  # 2초 대기 후 재시도
+                        continue
+                
+                # 재시도 후에도 실패한 경우
+                if not success:
+                    failed_files_new.append(image_file)
+                    with result_container:
+                        st.error(f"❌ {image_file}: {max_retries}회 시도 후 실패 - {last_error}")
+            
+            # 실패한 파일 목록 저장 (재시도용)
+            st.session_state['failed_files'] = failed_files_new
+            
+            # 통합 파일 저장
+            if save_consolidated and all_final_results:
+                all_df = pd.DataFrame(all_final_results)
+                
+                # 정렬
+                if '시나리오ID' in all_df.columns:
+                    all_df = all_df.sort_values(by=['시나리오ID'])
+                if 'TC_ID' in all_df.columns:
+                    sort_cols = ['시나리오ID', 'TC_ID'] if '시나리오ID' in all_df.columns else ['TC_ID']
+                    all_df = all_df.sort_values(by=sort_cols)
+                
+                all_df = all_df.reset_index(drop=True)
+                
+                output_file = os.path.join(output_folder, f"통합_최종본_{time.strftime('%Y%m%d_%H%M%S')}.xlsx")
+                excel_data = create_excel_file(all_df)
+                with open(output_file, 'wb') as f:
+                    f.write(excel_data.getvalue())
+                
+                st.balloons()
+                st.success(f"""
+                🎉 **배치 처리 완료!**
+                
+                - 처리된 이미지: **{total_files}개**
+                - 총 테스트 케이스: **{len(all_final_results)}개**
+                - 저장 위치: `{output_file}`
+                """)
 
 # ---------- 애플리케이션 진입점 ----------
 if __name__ == "__main__":
