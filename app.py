@@ -1371,14 +1371,8 @@ def main():
                     # 병합 버튼 (1차 + 2차 → Final)
                     if st.button("🔗 1차 + 2차 병합 (Final)", use_container_width=True, type="primary"):
                         try:
-                            # 원본(base_df)과 확장(expanded_df) 병합
+                            # 원본(base_df)과 확장(expanded_df) 병합 (중복 제거 안함)
                             merged_df = pd.concat([base_df, expanded_df], ignore_index=True)
-                            
-                            # 중복 제거 (시나리오ID 기준)
-                            if '시나리오ID' in merged_df.columns:
-                                merged_df = merged_df.drop_duplicates(subset=['시나리오ID'], keep='first')
-                            elif 'TC_ID' in merged_df.columns:
-                                merged_df = merged_df.drop_duplicates(subset=['TC_ID'], keep='first')
                             
                             # 세션에 저장
                             st.session_state['merged_df'] = merged_df
